@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kynetra — Where Innovation Meets Knowledge</title>
+<meta name="description" content="Kynetra is a premium publication covering Artificial Intelligence, Machine Learning, GIS, Remote Sensing, Hydrology, Climate Science and modern software engineering.">
+<meta name="keywords" content="Kynetra, AI, Machine Learning, GIS, Remote Sensing, Hydrology, Climate Change, Python, Web Development, Data Science, Cybersecurity">
+<meta name="author" content="Kynetra">
+<meta property="og:title" content="Kynetra — Where Innovation Meets Knowledge">
+<meta property="og:description" content="A premium publication at the intersection of technology, science and research.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#2563EB">
+<style>
+/* =========================================================
+   0. DESIGN TOKENS
+========================================================= */
+:root{
+  --primary:#2563EB;
+  --secondary:#7C3AED;
+  --accent:#06B6D4;
+  --dark:#0F172A;
+  --light:#F8FAFC;
+
+  --bg:#F8FAFC;
+  --bg-alt:#EEF2F9;
+  --surface:rgba(255,255,255,0.65);
+  --surface-solid:#ffffff;
+  --border:rgba(15,23,42,0.08);
+  --text:#0F172A;
+  --text-dim:#475569;
+  --text-faint:#94A3B8;
+  --shadow:0 20px 45px -20px rgba(15,23,42,0.25);
+  --shadow-sm:0 8px 20px -12px rgba(15,23,42,0.25);
+  --radius-lg:26px;
+  --radius-md:18px;
+  --radius-sm:12px;
+  --font-display:'Kynetra Display', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body:'Kynetra Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:'SFMono-Regular', Menlo, Consolas, monospace;
+  --ease:cubic-bezier(.16,.84,.44,1);
+}
+
+[data-theme="dark"]{
+  --bg:#0B1220;
+  --bg-alt:#0F172A;
+  --surface:rgba(23,32,52,0.55);
+  --surface-solid:#131b2e;
+  --border:rgba(248,250,252,0.08);
+  --text:#F8FAFC;
+  --text-dim:#B8C2D6;
+  --text-faint:#5C6B8A;
+  --shadow:0 25px 60px -20px rgba(0,0,0,0.6);
+  --shadow-sm:0 10px 25px -12px rgba(0,0,0,0.55);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+  transition:background .5s var(--ease), color .5s var(--ease);
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,textarea{font-family:inherit;}
+::selection{background:var(--primary);color:#fff;}
+
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;letter-spacing:-0.02em;line-height:1.1;}
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--primary);
+  font-weight:600;
+}
+.container{max-width:1240px;margin:0 auto;padding:0 32px;}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important;}
+}
+
+/* =========================================================
+   1. ANIMATED GRADIENT BACKGROUND
+========================================================= */
+.bg-canvas{
+  position:fixed;inset:0;z-index:-2;overflow:hidden;
+  background:var(--bg);
+}
+.bg-canvas::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    radial-gradient(38% 38% at 15% 20%, rgba(37,99,235,0.28) 0%, transparent 70%),
+    radial-gradient(42% 42% at 85% 15%, rgba(124,58,237,0.24) 0%, transparent 70%),
+    radial-gradient(45% 45% at 50% 90%, rgba(6,182,212,0.22) 0%, transparent 70%);
+  filter:blur(60px);
+  animation:drift 22s ease-in-out infinite alternate;
+}
+[data-theme="dark"] .bg-canvas::before{opacity:0.85;}
+@keyframes drift{
+  0%{transform:translate(0,0) rotate(0deg) scale(1);}
+  50%{transform:translate(-3%,4%) rotate(8deg) scale(1.08);}
+  100%{transform:translate(4%,-3%) rotate(-6deg) scale(1.05);}
+}
+.noise-overlay{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  opacity:0.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =========================================================
+   2. LOADING SCREEN
+========================================================= */
+#loading-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--dark);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;
+  transition:opacity .7s var(--ease), visibility .7s var(--ease);
+}
+#loading-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.loader-mark{
+  font-family:var(--font-display);
+  font-size:2.4rem;font-weight:700;color:#fff;letter-spacing:-0.02em;
+  display:flex;gap:2px;
+}
+.loader-mark span{
+  display:inline-block;
+  animation:loaderPulse 1.2s ease-in-out infinite;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.loader-mark span:nth-child(odd){animation-delay:.1s;}
+.loader-mark span:nth-child(3n){animation-delay:.2s;}
+@keyframes loaderPulse{
+  0%,100%{transform:translateY(0);opacity:.5;}
+  50%{transform:translateY(-8px);opacity:1;}
+}
+.loader-bar{width:160px;height:2px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;}
+.loader-bar::after{
+  content:"";display:block;height:100%;width:40%;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  animation:loaderSlide 1.1s ease-in-out infinite;
+}
+@keyframes loaderSlide{
+  0%{transform:translateX(-100%);}
+  100%{transform:translateX(350%);}
+}
+
+/* =========================================================
+   3. SCROLL PROGRESS BAR
+========================================================= */
+#scroll-progress{
+  position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent));
+  width:0%;z-index:10000;
+  transition:width .1s linear;
+}
+
+/* =========================================================
+   4. CUSTOM CURSOR (desktop only)
+========================================================= */
+.cursor-dot,.cursor-ring{
+  position:fixed;top:0;left:0;pointer-events:none;z-index:9998;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:opacity .3s ease;
+}
+.cursor-dot{width:6px;height:6px;background:var(--primary);}
+.cursor-ring{width:34px;height:34px;border:1.5px solid var(--primary);opacity:0.5;transition:transform .15s var(--ease), opacity .3s ease;}
+.cursor-ring.grow{transform:translate(-50%,-50%) scale(1.6);opacity:0.8;}
+@media (hover:none), (pointer:coarse){
+  .cursor-dot,.cursor-ring{display:none;}
+}
+
+/* =========================================================
+   5. NAVBAR
+========================================================= */
+header#navbar{
+  position:sticky;top:0;z-index:1000;
+  padding:16px 0;
+}
+.nav-inner{
+  max-width:1240px;margin:0 auto;padding:0 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:24px;
+}
+.nav-shell{
+  background:var(--surface);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--border);
+  border-radius:100px;
+  padding:10px 14px 10px 22px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;
+  box-shadow:var(--shadow-sm);
+  transition:background .4s var(--ease), border-color .4s var(--ease);
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-display);font-weight:700;font-size:1.3rem;letter-spacing:-0.02em;
+}
+.logo-mark{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--primary),var(--secondary) 60%,var(--accent));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;font-weight:800;
+  box-shadow:0 6px 16px -4px rgba(37,99,235,0.55);
+}
+.logo-text small{
+  display:block;font-family:var(--font-body);font-weight:500;font-size:0.62rem;
+  letter-spacing:0.06em;color:var(--text-faint);text-transform:none;
+}
+nav.nav-links{display:flex;align-items:center;gap:2px;}
+nav.nav-links a{
+  font-size:0.86rem;font-weight:500;padding:9px 15px;border-radius:100px;
+  color:var(--text-dim);transition:all .25s var(--ease);white-space:nowrap;
+}
+nav.nav-links a:hover{background:var(--bg-alt);color:var(--text);}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+
+.theme-toggle{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-alt);border:1px solid var(--border);
+  font-size:1.05rem;transition:transform .35s var(--ease), background .3s ease;
+}
+.theme-toggle:hover{transform:rotate(20deg) scale(1.08);}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 22px;border-radius:100px;font-weight:600;font-size:0.88rem;
+  position:relative;overflow:hidden;isolation:isolate;
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;box-shadow:0 10px 25px -8px rgba(37,99,235,0.6);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 32px -10px rgba(37,99,235,0.7);}
+.btn-ghost{
+  background:var(--surface-solid);border:1px solid var(--border);color:var(--text);
+}
+.btn-ghost:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.btn .ripple{
+  position:absolute;border-radius:50%;background:rgba(255,255,255,0.5);
+  transform:scale(0);animation:rippleAnim .6s ease-out forwards;pointer-events:none;
+}
+@keyframes rippleAnim{to{transform:scale(3.2);opacity:0;}}
+
+.hamburger{
+  display:none;width:42px;height:42px;border-radius:50%;
+  background:var(--bg-alt);border:1px solid var(--border);
+  align-items:center;justify-content:center;flex-direction:column;gap:4px;
+}
+.hamburger span{width:18px;height:2px;background:var(--text);border-radius:2px;transition:all .3s var(--ease);}
+.hamburger.active span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+.hamburger.active span:nth-child(2){opacity:0;}
+.hamburger.active span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+.mobile-menu{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  transform:translateY(-100%);opacity:0;
+  transition:transform .5s var(--ease), opacity .4s ease;
+  pointer-events:none;
+}
+.mobile-menu.open{transform:translateY(0);opacity:1;pointer-events:auto;}
+.mobile-menu a{font-family:var(--font-display);font-size:1.7rem;padding:14px;color:var(--text);}
+
+/* =========================================================
+   6. HERO
+========================================================= */
+.hero{
+  padding:90px 0 70px;
+  position:relative;
+}
+.hero-inner{
+  max-width:1240px;margin:0 auto;padding:0 32px;
+  display:grid;grid-template-columns:1.15fr 0.85fr;gap:50px;align-items:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 16px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  font-size:0.78rem;font-weight:600;color:var(--text-dim);
+  backdrop-filter:blur(10px);margin-bottom:24px;
+}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulseDot 1.6s ease-in-out infinite;}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.4);}}
+
+.hero h1{
+  font-size:clamp(2.4rem,5.2vw,4.1rem);
+  margin-bottom:22px;
+}
+.hero h1 .grad{
+  background:linear-gradient(120deg,var(--primary),var(--secondary) 45%,var(--accent));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+#typed-cursor{display:inline-block;width:3px;background:var(--primary);margin-left:4px;animation:blink 0.9s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+.hero p.lead{
+  font-size:1.12rem;color:var(--text-dim);max-width:520px;margin-bottom:34px;
+}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:44px;}
+.hero-stats{display:flex;gap:36px;flex-wrap:wrap;}
+.hero-stats div strong{display:block;font-family:var(--font-display);font-size:1.5rem;}
+.hero-stats div span{font-size:0.78rem;color:var(--text-faint);}
+
+.hero-visual{position:relative;height:460px;}
+.float-card{
+  position:absolute;
+  background:var(--surface);
+  backdrop-filter:blur(18px) saturate(160%);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow);
+  padding:20px;
+  animation:floaty 6s ease-in-out infinite;
+}
+.float-card.c1{width:230px;top:0;left:20px;animation-delay:0s;}
+.float-card.c2{width:200px;top:190px;right:0;animation-delay:1.2s;}
+.float-card.c3{width:210px;bottom:0;left:60px;animation-delay:2.4s;}
+@keyframes floaty{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateY(-16px) rotate(-1.2deg);}
+}
+.float-card .tag{font-size:0.68rem;font-weight:700;color:var(--primary);letter-spacing:0.06em;text-transform:uppercase;}
+.float-card h4{font-size:0.95rem;margin:8px 0 6px;}
+.float-card p{font-size:0.78rem;color:var(--text-faint);}
+.mini-chart{display:flex;align-items:end;gap:4px;height:36px;margin-top:12px;}
+.mini-chart i{flex:1;background:linear-gradient(180deg,var(--accent),var(--primary));border-radius:3px 3px 0 0;}
+
+/* =========================================================
+   7. SECTION HEADERS
+========================================================= */
+.section{padding:90px 0;}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:44px;flex-wrap:wrap;}
+.section-head h2{font-size:clamp(1.8rem,3vw,2.5rem);margin-top:10px;}
+.section-head p{color:var(--text-dim);max-width:480px;margin-top:10px;font-size:0.98rem;}
+
+/* =========================================================
+   8. SEARCH + FILTERS
+========================================================= */
+.controls{
+  display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:34px;
+}
+.search-box{
+  flex:1;min-width:240px;
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:100px;padding:13px 20px;
+  backdrop-filter:blur(14px);
+  transition:border-color .3s ease, box-shadow .3s ease;
+}
+.search-box:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,0.14);}
+.search-box input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:0.92rem;}
+.search-box input::placeholder{color:var(--text-faint);}
+.sort-select{
+  background:var(--surface);border:1px solid var(--border);border-radius:100px;
+  padding:12px 18px;font-size:0.85rem;font-weight:600;color:var(--text);
+  backdrop-filter:blur(14px);cursor:pointer;
+}
+.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px;}
+.chip{
+  padding:9px 18px;border-radius:100px;font-size:0.82rem;font-weight:600;
+  background:var(--surface-solid);border:1px solid var(--border);color:var(--text-dim);
+  transition:all .25s var(--ease);
+}
+.chip:hover{border-color:var(--primary);color:var(--primary);}
+.chip.active{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border-color:transparent;}
+
+/* =========================================================
+   9. FEATURED ARTICLE
+========================================================= */
+.featured{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+}
+.featured-media{
+  min-height:340px;position:relative;
+  background:linear-gradient(135deg,var(--primary),var(--secondary) 55%,var(--accent));
+  overflow:hidden;
+}
+.featured-media::before{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 45%),
+    radial-gradient(circle at 75% 70%, rgba(255,255,255,0.18), transparent 40%);
+}
+.featured-media .glyph{position:absolute;bottom:24px;right:28px;font-size:5rem;opacity:0.35;color:#fff;}
+.featured-body{padding:46px;display:flex;flex-direction:column;justify-content:center;gap:16px;}
+.featured-body .eyebrow{margin-bottom:2px;}
+.featured-body h3{font-size:1.9rem;}
+.featured-body p{color:var(--text-dim);font-size:1rem;}
+.meta-row{display:flex;align-items:center;gap:14px;font-size:0.8rem;color:var(--text-faint);flex-wrap:wrap;}
+.avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--secondary));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.7rem;font-weight:700;
+}
+
+/* =========================================================
+   10. ARTICLE GRID / CARDS
+========================================================= */
+.grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
+}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  backdrop-filter:blur(16px) saturate(150%);
+  transition:transform .45s var(--ease), box-shadow .45s var(--ease), opacity .4s ease;
+  display:flex;flex-direction:column;
+  opacity:0;transform:translateY(26px);
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.card.reveal{opacity:1;transform:translateY(0);}
+.card:hover{box-shadow:var(--shadow);}
+.card-media{
+  height:170px;position:relative;overflow:hidden;
+}
+.card-media .cat-badge{
+  position:absolute;top:14px;left:14px;
+  background:rgba(15,23,42,0.55);backdrop-filter:blur(6px);
+  color:#fff;font-size:0.68rem;font-weight:700;letter-spacing:0.04em;
+  padding:6px 12px;border-radius:100px;text-transform:uppercase;
+}
+.card-media .glyph{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:3rem;color:rgba(255,255,255,0.55);
+}
+.card-body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:10px;flex:1;}
+.card-body h3{font-size:1.12rem;line-height:1.32;}
+.card-body p.desc{font-size:0.87rem;color:var(--text-dim);flex:1;}
+.card-meta{display:flex;align-items:center;justify-content:space-between;font-size:0.74rem;color:var(--text-faint);margin-top:2px;}
+.card-author{display:flex;align-items:center;gap:8px;}
+.card-actions{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:12px;padding-top:14px;border-top:1px solid var(--border);
+}
+.icon-actions{display:flex;gap:6px;}
+.icon-btn{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-alt);font-size:0.92rem;
+  transition:transform .25s var(--ease), background .25s ease, color .25s ease;
+  position:relative;
+}
+.icon-btn:hover{transform:translateY(-2px) scale(1.08);}
+.icon-btn.liked{color:#EF4444;}
+.icon-btn.liked .heart-pop{animation:heartPop .5s var(--ease);}
+@keyframes heartPop{
+  0%{transform:scale(1);}
+  35%{transform:scale(1.5);}
+  60%{transform:scale(0.9);}
+  100%{transform:scale(1);}
+}
+.icon-btn.bookmarked{color:var(--primary);}
+.icon-btn.bookmarked .bm-pop{animation:bmPop .45s var(--ease);}
+@keyframes bmPop{
+  0%{transform:translateY(0);}
+  40%{transform:translateY(-5px) rotate(-8deg);}
+  100%{transform:translateY(0);}
+}
+.read-more{
+  font-size:0.82rem;font-weight:700;color:var(--primary);
+  display:inline-flex;align-items:center;gap:4px;
+}
+.read-more span{transition:transform .3s var(--ease);}
+.read-more:hover span{transform:translateX(4px);}
+.card.hidden-card{display:none;}
+
+@media (hover:hover){
+  .card{ }
+}
+
+/* =========================================================
+   11. CATEGORIES
+========================================================= */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+.cat-card{
+  padding:30px 24px;border-radius:var(--radius-md);
+  background:var(--surface);border:1px solid var(--border);
+  backdrop-filter:blur(14px);
+  transition:transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s ease;
+  cursor:pointer;
+}
+.cat-card:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--primary);}
+.cat-card .cicon{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;
+}
+.cat-card h4{font-size:1.02rem;margin-bottom:6px;}
+.cat-card span{font-size:0.78rem;color:var(--text-faint);}
+
+/* =========================================================
+   12. TRENDING
+========================================================= */
+.trend-list{display:flex;flex-direction:column;gap:2px;}
+.trend-item{
+  display:flex;align-items:center;gap:22px;
+  padding:20px 6px;border-bottom:1px solid var(--border);
+  transition:padding-left .3s var(--ease), background .3s ease;
+  border-radius:12px;
+}
+.trend-item:hover{padding-left:14px;background:var(--surface);}
+.trend-rank{font-family:var(--font-display);font-size:1.6rem;color:var(--text-faint);width:44px;flex-shrink:0;}
+.trend-info h4{font-size:1rem;margin-bottom:4px;}
+.trend-info span{font-size:0.78rem;color:var(--text-faint);}
+.trend-stat{margin-left:auto;font-size:0.8rem;color:var(--accent);font-weight:700;white-space:nowrap;}
+
+/* =========================================================
+   13. NEWSLETTER
+========================================================= */
+.newsletter{
+  border-radius:var(--radius-lg);
+  padding:64px 48px;
+  text-align:center;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--primary),var(--secondary) 60%,var(--accent));
+  color:#fff;
+}
+.newsletter::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 20%, rgba(255,255,255,0.18), transparent 45%),
+             radial-gradient(circle at 85% 85%, rgba(255,255,255,0.15), transparent 40%);
+}
+.newsletter h2{font-size:clamp(1.7rem,3vw,2.2rem);position:relative;margin-bottom:12px;}
+.newsletter p{opacity:0.9;max-width:480px;margin:0 auto 30px;position:relative;}
+.news-form{
+  display:flex;gap:10px;max-width:440px;margin:0 auto;position:relative;flex-wrap:wrap;justify-content:center;
+}
+.news-form input{
+  flex:1;min-width:220px;padding:14px 20px;border-radius:100px;border:none;outline:none;
+  font-size:0.9rem;background:rgba(255,255,255,0.94);color:var(--dark);
+}
+.news-form button{
+  padding:14px 26px;border-radius:100px;background:var(--dark);color:#fff;font-weight:700;font-size:0.88rem;
+  transition:transform .3s var(--ease);
+}
+.news-form button:hover{transform:translateY(-2px);}
+.news-success{
+  margin-top:16px;font-size:0.86rem;font-weight:600;position:relative;
+  display:none;opacity:0;transition:opacity .4s ease;
+}
+.news-success.show{display:block;opacity:1;}
+
+/* =========================================================
+   14. ABOUT
+========================================================= */
+.about-wrap{display:grid;grid-template-columns:0.9fr 1.1fr;gap:60px;align-items:center;}
+.about-media{
+  position:relative;height:380px;border-radius:var(--radius-lg);overflow:hidden;
+  background:linear-gradient(150deg,var(--dark),var(--primary) 120%);
+}
+.about-media::before{
+  content:"K";
+  position:absolute;font-family:var(--font-display);font-size:14rem;font-weight:800;
+  color:rgba(255,255,255,0.08);right:-20px;bottom:-40px;
+}
+.about-media .quote{
+  position:absolute;bottom:30px;left:30px;right:30px;color:#fff;
+  font-family:var(--font-display);font-size:1.3rem;line-height:1.35;
+}
+.about-copy h2{font-size:clamp(1.8rem,3vw,2.4rem);margin-bottom:18px;}
+.about-copy p{color:var(--text-dim);margin-bottom:16px;}
+.about-grid-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px;}
+.about-grid-stats div{
+  padding:18px;border-radius:16px;background:var(--surface);border:1px solid var(--border);text-align:center;
+}
+.about-grid-stats strong{display:block;font-family:var(--font-display);font-size:1.5rem;color:var(--primary);}
+.about-grid-stats span{font-size:0.75rem;color:var(--text-faint);}
+
+/* =========================================================
+   15. CONTACT
+========================================================= */
+.contact-wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:50px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:50px;backdrop-filter:blur(16px);
+}
+.contact-info h2{font-size:1.9rem;margin-bottom:14px;}
+.contact-info p{color:var(--text-dim);margin-bottom:26px;}
+.contact-list{display:flex;flex-direction:column;gap:16px;}
+.contact-list li{display:flex;align-items:center;gap:14px;font-size:0.92rem;}
+.contact-list .ic{
+  width:38px;height:38px;border-radius:12px;background:var(--bg-alt);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--primary);flex-shrink:0;
+}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:0.8rem;font-weight:600;margin-bottom:7px;color:var(--text-dim);}
+.form-group input,.form-group textarea{
+  width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--border);
+  background:var(--bg-alt);color:var(--text);outline:none;font-size:0.9rem;
+  transition:border-color .3s ease, box-shadow .3s ease;
+}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,0.14);}
+.form-group textarea{resize:vertical;min-height:100px;}
+
+/* =========================================================
+   16. FOOTER
+========================================================= */
+footer{
+  border-top:1px solid var(--border);
+  padding:70px 0 30px;
+  margin-top:40px;
+}
+.footer-grid{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:50px;
+}
+.footer-brand p{color:var(--text-dim);font-size:0.88rem;margin:16px 0 20px;max-width:280px;}
+.footer-col h5{font-size:0.82rem;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px;color:var(--text-faint);}
+.footer-col a{
+  display:block;font-size:0.88rem;color:var(--text-dim);padding:6px 0;
+  transition:color .25s ease, transform .25s ease;
+}
+.footer-col a:hover{color:var(--primary);transform:translateX(3px);}
+.social-row{display:flex;gap:10px;margin-top:6px;}
+.social-icon{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--surface-solid);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+  transition:all .3s var(--ease);
+}
+.social-icon:hover{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;transform:translateY(-4px);border-color:transparent;}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+  padding-top:26px;border-top:1px solid var(--border);
+  font-size:0.8rem;color:var(--text-faint);
+}
+.footer-bottom .legal-links{display:flex;gap:18px;}
+.footer-bottom .legal-links a:hover{color:var(--primary);}
+
+/* =========================================================
+   17. BACK TO TOP
+========================================================= */
+#back-to-top{
+  position:fixed;bottom:28px;right:28px;z-index:900;
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+  box-shadow:0 12px 28px -8px rgba(37,99,235,0.6);
+  opacity:0;visibility:hidden;transform:translateY(16px);
+  transition:all .4s var(--ease);
+}
+#back-to-top.show{opacity:1;visibility:visible;transform:translateY(0);}
+#back-to-top:hover{transform:translateY(-4px) scale(1.05);}
+
+/* =========================================================
+   18. TOAST
+========================================================= */
+#toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--dark);color:#fff;padding:13px 24px;border-radius:100px;
+  font-size:0.85rem;font-weight:600;box-shadow:var(--shadow);
+  z-index:9999;opacity:0;visibility:hidden;transition:all .4s var(--ease);
+  display:flex;align-items:center;gap:10px;
+}
+#toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+
+/* =========================================================
+   19. SCROLL REVEAL
+========================================================= */
+.reveal-el{opacity:0;transform:translateY(30px);transition:opacity .8s var(--ease), transform .8s var(--ease);}
+.reveal-el.in-view{opacity:1;transform:translateY(0);}
+.zoom-el{opacity:0;transform:scale(0.92);transition:opacity .7s var(--ease), transform .7s var(--ease);}
+.zoom-el.in-view{opacity:1;transform:scale(1);}
+
+/* =========================================================
+   20. RESPONSIVE
+========================================================= */
+@media (max-width:1080px){
+  .grid{grid-template-columns:repeat(2,1fr);}
+  .cat-grid{grid-template-columns:repeat(2,1fr);}
+  .hero-inner{grid-template-columns:1fr;}
+  .hero-visual{height:340px;margin-top:20px;}
+  .about-wrap{grid-template-columns:1fr;}
+  .contact-wrap{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:760px){
+  nav.nav-links{display:none;}
+  .hamburger{display:flex;}
+  .grid{grid-template-columns:1fr;}
+  .cat-grid{grid-template-columns:1fr;}
+  .featured{grid-template-columns:1fr;}
+  .section{padding:60px 0;}
+  .container{padding:0 20px;}
+  .nav-inner{padding:0 16px;}
+  .footer-grid{grid-template-columns:1fr;}
+  .hero{padding:60px 0 40px;}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen" aria-hidden="true">
+  <div class="loader-mark"><span>K</span><span>y</span><span>n</span><span>e</span><span>t</span><span>r</span><span>a</span></div>
+  <div class="loader-bar"></div>
+</div>
+
+<div class="bg-canvas" aria-hidden="true"></div>
+<div class="noise-overlay" aria-hidden="true"></div>
+
+<div id="scroll-progress"></div>
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- Navbar -->
+<header id="navbar">
+  <div class="nav-inner">
+    <div class="nav-shell">
+      <a href="#home" class="logo">
+        <span class="logo-mark">K</span>
+        <span class="logo-text">Kynetra<small>Where Innovation Meets Knowledge</small></span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#home">Home</a>
+        <a href="#articles">Articles</a>
+        <a href="#categories">Categories</a>
+        <a href="#trending">Trending</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark and light mode">🌙</button>
+        <button class="btn btn-primary" id="subscribe-nav-btn">Subscribe</button>
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#home">Home</a>
+  <a href="#articles">Articles</a>
+  <a href="#categories">Categories</a>
+  <a href="#trending">Trending</a>
+  <a href="#about">About</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<main>
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge reveal-el"><span class="dot"></span> Issue No. 47 — Now Publishing</div>
+        <h1 class="reveal-el">
+          <span id="typed-text"></span><span id="typed-cursor"></span><br>
+          <span class="grad">deserves a sharper lens.</span>
+        </h1>
+        <p class="lead reveal-el">Kynetra is a premium publication for engineers, scientists and builders — covering artificial intelligence, geospatial science and the software shaping how we understand the planet.</p>
+        <div class="hero-ctas reveal-el">
+          <a href="#articles" class="btn btn-primary" data-ripple>Start Reading <span>→</span></a>
+          <a href="#about" class="btn btn-ghost" data-ripple>Our Story</a>
+        </div>
+        <div class="hero-stats reveal-el">
+          <div><strong>128K+</strong><span>Monthly readers</span></div>
+          <div><strong>340</strong><span>In-depth articles</span></div>
+          <div><strong>52</strong><span>Contributing experts</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="float-card c1 zoom-el">
+          <span class="tag">Remote Sensing</span>
+          <h4>Satellite imagery is getting sharper</h4>
+          <p>Sub-meter resolution is now commercially routine.</p>
+        </div>
+        <div class="float-card c2 zoom-el">
+          <span class="tag">Data Science</span>
+          <h4>Model accuracy, live</h4>
+          <div class="mini-chart">
+            <i style="height:40%"></i><i style="height:70%"></i><i style="height:55%"></i>
+            <i style="height:90%"></i><i style="height:65%"></i><i style="height:80%"></i>
+          </div>
+        </div>
+        <div class="float-card c3 zoom-el">
+          <span class="tag">Climate</span>
+          <h4>Global anomaly +1.4°C</h4>
+          <p>Tracking the decade's hydrological shifts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Article -->
+  <section class="section" id="featured">
+    <div class="container">
+      <div class="section-head reveal-el">
+        <div>
+          <span class="eyebrow">Editor's Pick</span>
+          <h2>Featured Article</h2>
+        </div>
+      </div>
+      <div class="featured reveal-el">
+        <div class="featured-media"><span class="glyph">◍</span></div>
+        <div class="featured-body">
+          <span class="eyebrow">Artificial Intelligence</span>
+          <h3>How Foundation Models Are Quietly Rewriting Environmental Science</h3>
+          <p>From flood forecasting to crop yield prediction, large pretrained models are becoming the default substrate for geospatial research. We trace the shift from bespoke pipelines to general-purpose reasoning — and what it means for scientific rigor.</p>
+          <div class="meta-row">
+            <div class="avatar">AR</div>
+            <span>Aisha Rahman</span>
+            <span>·</span>
+            <span>Jun 14, 2026</span>
+            <span>·</span>
+            <span>11 min read</span>
+          </div>
+          <div class="hero-ctas" style="margin-top:6px;">
+            <a href="#" class="btn btn-primary" data-ripple>Read Article <span>→</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Articles -->
+  <section class="section" id="articles">
+    <div class="container">
+      <div class="section-head reveal-el">
+        <div>
+          <span class="eyebrow">Fresh off the Press</span>
+          <h2>Latest Articles</h2>
+          <p>Hand-picked essays and field notes across AI, geospatial science and modern engineering.</p>
+        </div>
+      </div>
+
+      <div class="controls reveal-el">
+        <div class="search-box">
+          <span aria-hidden="true">⌕</span>
+          <input type="text" id="search-input" placeholder="Search articles, topics, or authors…" aria-label="Search articles">
+        </div>
+        <select class="sort-select" id="sort-select" aria-label="Sort articles">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+      </div>
+
+      <div class="chip-row reveal-el" id="chip-row">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="Artificial Intelligence">AI</button>
+        <button class="chip" data-filter="Machine Learning">Machine Learning</button>
+        <button class="chip" data-filter="GIS">GIS</button>
+        <button class="chip" data-filter="Remote Sensing">Remote Sensing</button>
+        <button class="chip" data-filter="Hydrology">Hydrology</button>
+        <button class="chip" data-filter="Climate Change">Climate Change</button>
+        <button class="chip" data-filter="Python">Python</button>
+        <button class="chip" data-filter="Web Development">Web Dev</button>
+        <button class="chip" data-filter="Data Science">Data Science</button>
+        <button class="chip" data-filter="Cybersecurity">Cybersecurity</button>
+        <button class="chip" data-filter="Research">Research</button>
+        <button class="chip" data-filter="Technology">Technology</button>
+      </div>
+
+      <div class="grid" id="articles-grid"></div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="section" id="categories">
+    <div class="container">
+      <div class="section-head reveal-el">
+        <div>
+          <span class="eyebrow">Explore</span>
+          <h2>Browse by Category</h2>
+          <p>Twelve disciplines. One shared obsession with rigor.</p>
+        </div>
+      </div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
+  </section>
+
+  <!-- Trending -->
+  <section class="section" id="trending">
+    <div class="container">
+      <div class="section-head reveal-el">
+        <div>
+          <span class="eyebrow">Right Now</span>
+          <h2>Trending Topics</h2>
+        </div>
+      </div>
+      <div class="trend-list" id="trend-list"></div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="section">
+    <div class="container">
+      <div class="newsletter reveal-el">
+        <h2>Get the sharpest ideas, weekly.</h2>
+        <p>Join 24,000+ engineers and researchers who read Kynetra's Sunday digest. No spam, unsubscribe anytime.</p>
+        <form class="news-form" id="newsletter-form">
+          <input type="email" id="newsletter-email" placeholder="you@example.com" required aria-label="Email address">
+          <button type="submit">Subscribe</button>
+        </form>
+        <div class="news-success" id="news-success">✓ You're on the list. Welcome to Kynetra.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="section" id="about">
+    <div class="container">
+      <div class="about-wrap">
+        <div class="about-media reveal-el">
+          <p class="quote">"We built Kynetra because the best technical writing shouldn't feel disposable."</p>
+        </div>
+        <div class="about-copy reveal-el">
+          <span class="eyebrow">About Kynetra</span>
+          <h2>Where rigor meets readability</h2>
+          <p>Kynetra started in 2021 as a small newsletter written by two remote-sensing researchers frustrated with shallow tech coverage. Today it's a full publication spanning artificial intelligence, hydrology, geospatial science and software engineering — written by practitioners, not generalists.</p>
+          <p>Every article is fact-checked, peer-reviewed by a subject specialist, and edited for clarity before it reaches your feed. We believe complex ideas deserve careful explanation, not just a catchy headline.</p>
+          <div class="about-grid-stats">
+            <div><strong>2021</strong><span>Founded</span></div>
+            <div><strong>52</strong><span>Contributors</span></div>
+            <div><strong>19</strong><span>Countries reached</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="section" id="contact">
+    <div class="container">
+      <div class="contact-wrap reveal-el">
+        <div class="contact-info">
+          <span class="eyebrow">Get in touch</span>
+          <h2>Let's talk</h2>
+          <p>Pitching a story, reporting an issue, or want to partner with Kynetra? Send us a note — a real human reads every message.</p>
+          <ul class="contact-list">
+            <li><span class="ic">✉</span> hello@kynetra.example</li>
+            <li><span class="ic">☎</span> +1 (415) 555-0192</li>
+            <li><span class="ic">⌖</span> San Francisco, CA · Remote-first</li>
+          </ul>
+        </div>
+        <form id="contact-form">
+          <div class="form-group">
+            <label for="cname">Name</label>
+            <input type="text" id="cname" placeholder="Ada Lovelace" required>
+          </div>
+          <div class="form-group">
+            <label for="cemail">Email</label>
+            <input type="email" id="cemail" placeholder="ada@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="cmessage">Message</label>
+            <textarea id="cmessage" placeholder="Tell us what's on your mind…" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;" data-ripple>Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#home" class="logo">
+          <span class="logo-mark">K</span>
+          <span class="logo-text">Kynetra</span>
+        </a>
+        <p>Where Innovation Meets Knowledge. A premium publication covering AI, geospatial science and modern engineering.</p>
+        <div class="social-row">
+          <a href="#" class="social-icon" aria-label="Twitter / X">𝕏</a>
+          <a href="#" class="social-icon" aria-label="LinkedIn">in</a>
+          <a href="#" class="social-icon" aria-label="GitHub">⌥</a>
+          <a href="#" class="social-icon" aria-label="Instagram">◎</a>
+          <a href="#" class="social-icon" aria-label="RSS Feed">⌁</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Explore</h5>
+        <a href="#articles">Articles</a>
+        <a href="#categories">Categories</a>
+        <a href="#trending">Trending</a>
+        <a href="#about">About</a>
+      </div>
+      <div class="footer-col">
+        <h5>Topics</h5>
+        <a href="#" data-scroll-filter="Artificial Intelligence">Artificial Intelligence</a>
+        <a href="#" data-scroll-filter="GIS">GIS</a>
+        <a href="#" data-scroll-filter="Climate Change">Climate Change</a>
+        <a href="#" data-scroll-filter="Cybersecurity">Cybersecurity</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="#contact">Contact</a>
+        <a href="#">Careers</a>
+        <a href="#">Press Kit</a>
+        <a href="#">Advertise</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Kynetra. All rights reserved.</span>
+      <div class="legal-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" aria-label="Back to top">↑</button>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   DATA — 12 sample articles
+========================================================= */
+const ARTICLES = [
+  {
+    id:1, category:"Artificial Intelligence", glyph:"◍",
+    title:"Inside the Rise of Small Language Models for Edge Devices",
+    desc:"Why 2026's most interesting AI research isn't about scale — it's about squeezing capable reasoning into a few hundred megabytes.",
+    author:"Marcus Chen", initials:"MC", date:"2026-07-12", readTime:9,
+    gradient:"linear-gradient(135deg,#2563EB,#7C3AED)"
+  },
+  {
+    id:2, category:"Machine Learning", glyph:"◈",
+    title:"Debugging Silent Failures in Production ML Pipelines",
+    desc:"A field guide to the subtle data drift and label leakage bugs that don't throw errors — they just quietly erode accuracy.",
+    author:"Priya Nair", initials:"PN", date:"2026-07-08", readTime:12,
+    gradient:"linear-gradient(135deg,#7C3AED,#06B6D4)"
+  },
+  {
+    id:3, category:"GIS", glyph:"⬡",
+    title:"Vector Tiles vs Raster: Choosing the Right Basemap in 2026",
+    desc:"A practical comparison of rendering performance, styling flexibility, and offline support for modern web mapping stacks.",
+    author:"Diego Alvarez", initials:"DA", date:"2026-06-29", readTime:8,
+    gradient:"linear-gradient(135deg,#06B6D4,#2563EB)"
+  },
+  {
+    id:4, category:"Remote Sensing", glyph:"◑",
+    title:"Reading a Landscape from Orbit: A Beginner's Guide to Spectral Indices",
+    desc:"NDVI, NDWI, and beyond — how simple band-math reveals vegetation stress, water bodies, and burn scars from space.",
+    author:"Aisha Rahman", initials:"AR", date:"2026-06-21", readTime:10,
+    gradient:"linear-gradient(135deg,#2563EB,#06B6D4)"
+  },
+  {
+    id:5, category:"Hydrology", glyph:"≈",
+    title:"Forecasting Flash Floods with Coupled Rainfall-Runoff Models",
+    desc:"How hybrid physical and machine-learned models are cutting flood-warning lead times from hours to days in vulnerable basins.",
+    author:"Elena Petrova", initials:"EP", date:"2026-06-15", readTime:11,
+    gradient:"linear-gradient(135deg,#0F172A,#2563EB)"
+  },
+  {
+    id:6, category:"Climate Change", glyph:"☀",
+    title:"What a 1.5°C World Actually Looks Like, Region by Region",
+    desc:"We break down the latest regional climate projections into concrete, human-scale consequences — from monsoon shifts to coastal retreat.",
+    author:"Aisha Rahman", initials:"AR", date:"2026-06-02", readTime:14,
+    gradient:"linear-gradient(135deg,#7C3AED,#2563EB)"
+  },
+  {
+    id:7, category:"Python", glyph:"⌘",
+    title:"Writing Faster Pandas: A Practical Guide to Vectorization",
+    desc:"Concrete before-and-after benchmarks showing how to replace slow row-wise loops with vectorized operations that actually scale.",
+    author:"Marcus Chen", initials:"MC", date:"2026-05-27", readTime:7,
+    gradient:"linear-gradient(135deg,#2563EB,#7C3AED)"
+  },
+  {
+    id:8, category:"Web Development", glyph:"⌗",
+    title:"The Quiet Return of Server-Rendered Web Apps",
+    desc:"After a decade of client-heavy frameworks, teams are rediscovering the speed and simplicity of rendering on the server first.",
+    author:"Sofia Wren", initials:"SW", date:"2026-05-19", readTime:6,
+    gradient:"linear-gradient(135deg,#06B6D4,#7C3AED)"
+  },
+  {
+    id:9, category:"Data Science", glyph:"◫",
+    title:"Beyond the Correlation Matrix: Better Ways to Explore Tabular Data",
+    desc:"Correlation heatmaps are a starting point, not an answer. Here's a richer toolkit for exploratory data analysis.",
+    author:"Priya Nair", initials:"PN", date:"2026-05-11", readTime:9,
+    gradient:"linear-gradient(135deg,#2563EB,#0F172A)"
+  },
+  {
+    id:10, category:"Cybersecurity", glyph:"⛨",
+    title:"Supply Chain Attacks Are the New Perimeter Breach",
+    desc:"A look at how compromised open-source dependencies became 2026's most consequential attack vector — and how teams are responding.",
+    author:"Jonah Kessler", initials:"JK", date:"2026-05-03", readTime:10,
+    gradient:"linear-gradient(135deg,#7C3AED,#06B6D4)"
+  },
+  {
+    id:11, category:"Research", glyph:"✎",
+    title:"How to Read a Scientific Paper Without Getting Lost",
+    desc:"A structured approach for engineers and students to extract the signal from dense academic writing — fast.",
+    author:"Elena Petrova", initials:"EP", date:"2026-04-24", readTime:8,
+    gradient:"linear-gradient(135deg,#0F172A,#7C3AED)"
+  },
+  {
+    id:12, category:"Technology", glyph:"⬢",
+    title:"The Hidden Infrastructure Behind Every Map App You Use",
+    desc:"From tile servers to geocoding pipelines, a tour of the unglamorous systems that make modern location software possible.",
+    author:"Diego Alvarez", initials:"DA", date:"2026-04-16", readTime:9,
+    gradient:"linear-gradient(135deg,#06B6D4,#2563EB)"
+  }
+];
+
+const CATEGORIES = [
+  {name:"Artificial Intelligence", icon:"◍", count:38},
+  {name:"Machine Learning", icon:"◈", count:31},
+  {name:"GIS", icon:"⬡", count:22},
+  {name:"Remote Sensing", icon:"◑", count:19},
+  {name:"Hydrology", icon:"≈", count:14},
+  {name:"Climate Change", icon:"☀", count:27},
+  {name:"Python", icon:"⌘", count:33},
+  {name:"Web Development", icon:"⌗", count:25},
+  {name:"Data Science", icon:"◫", count:29},
+  {name:"Cybersecurity", icon:"⛨", count:18},
+  {name:"Research", icon:"✎", count:16},
+  {name:"Technology", icon:"⬢", count:23}
+];
+
+const TRENDING = [
+  {title:"Small Language Models for Edge Devices", cat:"Artificial Intelligence", stat:"+142% reads"},
+  {title:"1.5°C World, Region by Region", cat:"Climate Change", stat:"+98% reads"},
+  {title:"Supply Chain Attacks: The New Perimeter", cat:"Cybersecurity", stat:"+87% reads"},
+  {title:"Forecasting Flash Floods with Hybrid Models", cat:"Hydrology", stat:"+64% reads"},
+  {title:"Vector Tiles vs Raster Basemaps", cat:"GIS", stat:"+51% reads"}
+];
+
+let likedSet = new Set();
+let bookmarkedSet = new Set();
+let currentFilter = "all";
+let currentSort = "newest";
+let currentQuery = "";
+
+/* =========================================================
+   RENDER: Article Cards
+========================================================= */
+function cardTemplate(a){
+  const liked = likedSet.has(a.id);
+  const marked = bookmarkedSet.has(a.id);
+  const dateObj = new Date(a.date);
+  const dateStr = dateObj.toLocaleDateString('en-US',{month:'short', day:'numeric', year:'numeric'});
+  return `
+  <article class="card" data-id="${a.id}" data-category="${a.category}" data-title="${a.title.toLowerCase()}" data-author="${a.author.toLowerCase()}" data-date="${a.date}">
+    <div class="card-media" style="background:${a.gradient}">
+      <span class="cat-badge">${a.category}</span>
+      <span class="glyph" data-lazy="true">${a.glyph}</span>
+    </div>
+    <div class="card-body">
+      <h3>${a.title}</h3>
+      <p class="desc">${a.desc}</p>
+      <div class="card-meta">
+        <div class="card-author">
+          <div class="avatar" style="width:24px;height:24px;font-size:0.6rem;">${a.initials}</div>
+          <span>${a.author}</span>
+        </div>
+        <span>${dateStr}</span>
+      </div>
+      <div class="card-meta">
+        <span>⏱ ${a.readTime} min read</span>
+        <a href="#" class="read-more">Read <span>→</span></a>
+      </div>
+      <div class="card-actions">
+        <div class="icon-actions">
+          <button class="icon-btn like-btn ${liked?'liked':''}" data-id="${a.id}" aria-label="Like article">
+            <span class="heart-pop">${liked?'♥':'♡'}</span>
+          </button>
+          <button class="icon-btn bookmark-btn ${marked?'bookmarked':''}" data-id="${a.id}" aria-label="Bookmark article">
+            <span class="bm-pop">${marked?'★':'☆'}</span>
+          </button>
+          <button class="icon-btn share-btn" data-id="${a.id}" aria-label="Share article">⤴</button>
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+
+const grid = document.getElementById('articles-grid');
+
+function renderArticles(){
+  let list = ARTICLES.slice();
+
+  if(currentFilter !== "all"){
+    list = list.filter(a => a.category === currentFilter);
+  }
+  if(currentQuery.trim() !== ""){
+    const q = currentQuery.trim().toLowerCase();
+    list = list.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.desc.toLowerCase().includes(q) ||
+      a.author.toLowerCase().includes(q) ||
+      a.category.toLowerCase().includes(q)
+    );
+  }
+  list.sort((a,b)=>{
+    const da = new Date(a.date).getTime();
+    const db = new Date(b.date).getTime();
+    return currentSort === "newest" ? db - da : da - db;
+  });
+
+  if(list.length === 0){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-faint);">
+      <div style="font-size:2rem;margin-bottom:10px;">◌</div>
+      <p>No articles match your search. Try a different keyword or category.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(cardTemplate).join("");
+  requestAnimationFrame(()=> observeCards());
+}
+
+/* =========================================================
+   RENDER: Categories
+========================================================= */
+const catGrid = document.getElementById('cat-grid');
+catGrid.innerHTML = CATEGORIES.map(c => `
+  <div class="cat-card reveal-el" data-filter="${c.name}">
+    <div class="cicon">${c.icon}</div>
+    <h4>${c.name}</h4>
+    <span>${c.count} articles</span>
+  </div>
+`).join("");
+
+catGrid.addEventListener('click', (e)=>{
+  const card = e.target.closest('.cat-card');
+  if(!card) return;
+  setFilter(card.dataset.filter);
+  document.getElementById('articles').scrollIntoView({behavior:'smooth'});
+});
+
+/* =========================================================
+   RENDER: Trending
+========================================================= */
+const trendList = document.getElementById('trend-list');
+trendList.innerHTML = TRENDING.map((t,i)=>`
+  <div class="trend-item reveal-el">
+    <div class="trend-rank">${String(i+1).padStart(2,'0')}</div>
+    <div class="trend-info">
+      <h4>${t.title}</h4>
+      <span>${t.cat}</span>
+    </div>
+    <div class="trend-stat">${t.stat}</div>
+  </div>
+`).join("");
+
+/* =========================================================
+   FILTER CHIPS
+========================================================= */
+const chipRow = document.getElementById('chip-row');
+function setFilter(cat){
+  currentFilter = cat;
+  [...chipRow.children].forEach(chip=>{
+    chip.classList.toggle('active', chip.dataset.filter === cat);
+  });
+  renderArticles();
+}
+chipRow.addEventListener('click', (e)=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  setFilter(chip.dataset.filter);
+});
+
+document.querySelectorAll('[data-scroll-filter]').forEach(el=>{
+  el.addEventListener('click', (e)=>{
+    e.preventDefault();
+    setFilter(el.dataset.scrollFilter);
+    document.getElementById('articles').scrollIntoView({behavior:'smooth'});
+  });
+});
+
+/* =========================================================
+   SEARCH + SORT
+========================================================= */
+const searchInput = document.getElementById('search-input');
+searchInput.addEventListener('input', (e)=>{
+  currentQuery = e.target.value;
+  renderArticles();
+});
+document.getElementById('sort-select').addEventListener('change', (e)=>{
+  currentSort = e.target.value;
+  renderArticles();
+});
+
+/* =========================================================
+   LIKE / BOOKMARK / SHARE (event delegation)
+========================================================= */
+grid.addEventListener('click', (e)=>{
+  const likeBtn = e.target.closest('.like-btn');
+  const bmBtn = e.target.closest('.bookmark-btn');
+  const shareBtn = e.target.closest('.share-btn');
+
+  if(likeBtn){
+    const id = Number(likeBtn.dataset.id);
+    const span = likeBtn.querySelector('span');
+    if(likedSet.has(id)){
+      likedSet.delete(id);
+      likeBtn.classList.remove('liked');
+      span.textContent = '♡';
+    } else {
+      likedSet.add(id);
+      likeBtn.classList.add('liked');
+      span.textContent = '♥';
+      void likeBtn.offsetWidth;
+    }
+  }
+
+  if(bmBtn){
+    const id = Number(bmBtn.dataset.id);
+    const span = bmBtn.querySelector('span');
+    if(bookmarkedSet.has(id)){
+      bookmarkedSet.delete(id);
+      bmBtn.classList.remove('bookmarked');
+      span.textContent = '☆';
+      showToast('Removed from bookmarks');
+    } else {
+      bookmarkedSet.add(id);
+      bmBtn.classList.add('bookmarked');
+      span.textContent = '★';
+      showToast('Saved to bookmarks');
+    }
+  }
+
+  if(shareBtn){
+    navigator.clipboard?.writeText(window.location.href).then(()=>{
+      showToast('Link copied to clipboard');
+    }).catch(()=>{
+      showToast('Could not copy link');
+    });
+  }
+});
+
+/* =========================================================
+   TOAST
+========================================================= */
+let toastTimer;
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   THEME TOGGLE
+========================================================= */
+const themeToggle = document.getElementById('theme-toggle');
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggle.textContent = theme === 'dark' ? '☀' : '🌙';
+  try{ localStorage.setItem('kynetra-theme', theme); }catch(e){}
+}
+(function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('kynetra-theme'); }catch(e){}
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+themeToggle.addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+/* =========================================================
+   HAMBURGER / MOBILE MENU
+========================================================= */
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobile-menu');
+hamburger.addEventListener('click', ()=>{
+  hamburger.classList.toggle('active');
+  mobileMenu.classList.toggle('open');
+});
+mobileMenu.querySelectorAll('a').forEach(a=>{
+  a.addEventListener('click', ()=>{
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('open');
+  });
+});
+
+/* =========================================================
+   SCROLL PROGRESS + BACK TO TOP + NAVBAR SHRINK
+========================================================= */
+const progressBar = document.getElementById('scroll-progress');
+const backToTop = document.getElementById('back-to-top');
+function onScroll(){
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = pct + '%';
+  backToTop.classList.toggle('show', scrollTop > 500);
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+backToTop.addEventListener('click', ()=>{
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+/* =========================================================
+   CUSTOM CURSOR
+========================================================= */
+const cursorDot = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+window.addEventListener('mousemove', (e)=>{
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursorDot.style.left = mouseX + 'px';
+  cursorDot.style.top = mouseY + 'px';
+});
+function animateRing(){
+  ringX += (mouseX - ringX) * 0.18;
+  ringY += (mouseY - ringY) * 0.18;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+document.addEventListener('mouseover', (e)=>{
+  if(e.target.closest('a,button,.card,.chip,.cat-card')){
+    cursorRing.classList.add('grow');
+  }
+});
+document.addEventListener('mouseout', (e)=>{
+  if(e.target.closest('a,button,.card,.chip,.cat-card')){
+    cursorRing.classList.remove('grow');
+  }
+});
+
+/* =========================================================
+   TYPING EFFECT (hero headline)
+========================================================= */
+const typedEl = document.getElementById('typed-text');
+const phrases = ["Great engineering", "Good science", "Sharp curiosity", "Every big idea"];
+let phraseIdx = 0, charIdx = 0, deleting = false;
+function typeLoop(){
+  const current = phrases[phraseIdx];
+  if(!deleting){
+    charIdx++;
+    typedEl.textContent = current.slice(0, charIdx);
+    if(charIdx === current.length){
+      deleting = true;
+      setTimeout(typeLoop, 1500);
+      return;
+    }
+  } else {
+    charIdx--;
+    typedEl.textContent = current.slice(0, charIdx);
+    if(charIdx === 0){
+      deleting = false;
+      phraseIdx = (phraseIdx + 1) % phrases.length;
+    }
+  }
+  setTimeout(typeLoop, deleting ? 40 : 70);
+}
+typeLoop();
+
+/* =========================================================
+   RIPPLE EFFECT ON BUTTONS
+========================================================= */
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-ripple], .btn');
+  if(!btn) return;
+  const rect = btn.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  const size = Math.max(rect.width, rect.height);
+  ripple.className = 'ripple';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+  btn.style.position = btn.style.position || 'relative';
+  btn.appendChild(ripple);
+  setTimeout(()=> ripple.remove(), 650);
+});
+
+/* =========================================================
+   CARD TILT EFFECT
+========================================================= */
+function observeCards(){
+  document.querySelectorAll('.card').forEach(card=>{
+    if(card.dataset.tiltBound) return;
+    card.dataset.tiltBound = "true";
+    card.addEventListener('mousemove', (e)=>{
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const rotateX = ((y / rect.height) - 0.5) * -8;
+      const rotateY = ((x / rect.width) - 0.5) * 8;
+      card.style.transform = `translateY(-4px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    card.addEventListener('mouseleave', ()=>{
+      card.style.transform = '';
+    });
+    revealObserver.observe(card);
+  });
+}
+
+/* =========================================================
+   SCROLL REVEAL (IntersectionObserver)
+========================================================= */
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('reveal', 'in-view');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, {threshold:0.12, rootMargin:"0px 0px -60px 0px"});
+
+document.querySelectorAll('.reveal-el, .zoom-el').forEach(el=> revealObserver.observe(el));
+
+/* =========================================================
+   NEWSLETTER FORM (frontend only)
+========================================================= */
+document.getElementById('newsletter-form').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const emailInput = document.getElementById('newsletter-email');
+  const success = document.getElementById('news-success');
+  if(emailInput.value.trim() === '') return;
+  success.classList.add('show');
+  emailInput.value = '';
+  showToast('Subscribed! Welcome to Kynetra.');
+  setTimeout(()=> success.classList.remove('show'), 4000);
+});
+
+/* =========================================================
+   CONTACT FORM (frontend only)
+========================================================= */
+document.getElementById('contact-form').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  showToast('Message sent — we\\'ll reply soon.');
+  e.target.reset();
+});
+
+/* =========================================================
+   LAZY LOAD (simulated for CSS-based glyphs)
+========================================================= */
+const lazyObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.style.opacity = '1';
+      lazyObserver.unobserve(entry.target);
+    }
+  });
+}, {threshold:0.1});
+
+function initLazy(){
+  document.querySelectorAll('[data-lazy]').forEach(el=>{
+    el.style.opacity = '0';
+    el.style.transition = 'opacity .6s ease';
+    lazyObserver.observe(el);
+  });
+}
+
+/* =========================================================
+   NAV SUBSCRIBE BUTTON → scroll to newsletter
+========================================================= */
+document.getElementById('subscribe-nav-btn').addEventListener('click', ()=>{
+  document.getElementById('newsletter-email').closest('section').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=> document.getElementById('newsletter-email').focus(), 500);
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+renderArticles();
+setTimeout(initLazy, 300);
+
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{
+    document.getElementById('loading-screen').classList.add('hidden');
+  }, 500);
+});
+// Fallback in case 'load' already fired
+setTimeout(()=>{
+  document.getElementById('loading-screen').classList.add('hidden');
+}, 2500);
+
+})();
+</script>
+</body>
+</html>
